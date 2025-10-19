@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AirLines Booking</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to AirLines</h1>
+    <p>Book your flight easily with our system</p>
+
+    <!-- Step 1: Booking Details -->
+    <section id="booking-section" class="step active">
+      <h2>Booking Details</h2>
+      <div class="form-group">
+        <label>From:</label>
+        <input type="text" id="from" placeholder="Departure City">
+      </div>
+      <div class="form-group">
+        <label>To:</label>
+        <input type="text" id="to" placeholder="Destination City">
+      </div>
+
+      <div class="form-group">
+        <label>Flight Type:</label>
+        <label><input type="radio" name="flightType" value="oneway" checked> One Way</label>
+        <label><input type="radio" name="flightType" value="roundtrip"> Round Trip</label>
+      </div>
+
+      <div class="form-group">
+        <label>Depart Date:</label>
+        <input type="date" id="departDate">
+      </div>
+
+      <div class="form-group" id="returnDateLabel" style="display:none;">
+        <label>Return Date:</label>
+        <input type="date" id="returnDate">
+      </div>
+
+      <div class="form-group">
+        <label>Passengers:</label>
+        <input type="number" id="passengers" min="1" value="1">
+      </div>
+
+      <button id="searchFlightBtn">Search Flight</button>
+    </section>
+
+    <!-- Step 2: Flights -->
+    <section id="flight-section" class="step">
+      <h2>Available Flights</h2>
+      <div id="flightList"></div>
+      <button id="toBillingBtn" style="display:none;">Continue to Billing</button>
+      <button id="backToBookingBtn">← Go Back</button>
+    </section>
+
+    <!-- Step 3: Billing -->
+    <section id="billing-section" class="step">
+      <h2>Billing Details</h2>
+      <div id="billingInfo"></div>
+
+      <div class="form-group">
+        <label for="classType">Select Class Type:</label>
+        <select id="classType">
+          <option value="economy">Economy</option>
+          <option value="business">Business (+₱1000)</option>
+          <option value="first">First Class (+₱2000)</option>
+        </select>
+      </div>
+
+      <p id="computedFare"></p>
+
+      <button id="toPassengerBtnBilling">Continue to Passenger</button>
+      <button id="backToFlightBtnBilling">← Go Back</button>
+    </section>
+
+    <!-- Step 4: Passenger -->
+    <section id="passenger-section" class="step">
+      <h2>Passenger Information</h2>
+      <div id="passengerForms"></div>
+      <button id="toSummaryBtn">Continue to Summary</button>
+      <button id="backToBillingBtn">← Go Back</button>
+    </section>
+
+    <!-- Step 5: Summary -->
+    <section id="summary-section" class="step">
+      <h2>Booking Summary</h2>
+      <div id="summaryDetails"></div>
+      <button id="bookNowBtn">Book Now</button>
+      <button id="backToPassengerBtn">← Go Back</button>
+    </section>
+
+  </div>
+
+  <script src="behavior.js"></script>
+</body>
+</html>
