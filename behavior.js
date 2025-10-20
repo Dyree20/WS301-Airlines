@@ -102,7 +102,7 @@ function displayFlights(type) {
 // === gi check kung naa bay seat ===
 function validateFlightSelection(flight) {
   if (flight.seats <= 0) {
-    alert(`🚫 No seats left for flight ${flight.flightNo}.`);
+    alert(` No seats left for flight ${flight.flightNo}.`);
     return false;
   }
   selectedFlight = flight;
@@ -188,7 +188,7 @@ document.getElementById('toSummaryBtn').addEventListener('click', () => {
 
 // === Sa booking na diri ===
 document.getElementById('bookNowBtn').addEventListener('click', () => {
-  alert("✅ Booking successful! Thank you for choosing AirLines!");
+  alert(" Booking successful! Thank you for choosing AirLines!");
   window.location.reload();
 });
 
