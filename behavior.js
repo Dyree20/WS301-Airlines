@@ -27,7 +27,7 @@ document.querySelectorAll('input[name="flightType"]').forEach(radio => {
   });
 });
 
-// === Step 1: Search Flights ===
+// === pagbutang ug info sa booking ===
 document.getElementById('searchFlightBtn').addEventListener('click', () => {
   const from = document.getElementById('from').value.trim();
   const to = document.getElementById('to').value.trim();
@@ -47,7 +47,7 @@ document.getElementById('searchFlightBtn').addEventListener('click', () => {
   displayFlights(flightType);
 });
 
-// === Step 2: Display Flights ===
+// === diri naka array ang flight or gi display depende sa condition ===
 function displayFlights(type) {
   const list = document.getElementById('flightList');
   list.innerHTML = '';
@@ -78,15 +78,15 @@ function displayFlights(type) {
     `;
     list.appendChild(div);
 
-    // When the select button is clicked
+    // sya ang mo asikaso sa pagpili sa flight
     div.querySelector('button').addEventListener('click', () => {
-      // remove highlight from all others
+      // removing the highlight
       document.querySelectorAll('.flight-item').forEach(item => item.classList.remove('selected'));
 
       // highlight selected
       div.classList.add('selected');
 
-      // validate & show billing
+      // pagselect sa flight
       if (validateFlightSelection(f)) {
         selectedFlight = f;
         document.getElementById('toBillingBtn').style.display = 'block';
@@ -99,7 +99,7 @@ function displayFlights(type) {
   }
 }
 
-// === Validate Flight Selection ===
+// === gi check kung naa bay seat ===
 function validateFlightSelection(flight) {
   if (flight.seats <= 0) {
     alert(`🚫 No seats left for flight ${flight.flightNo}.`);
@@ -109,7 +109,7 @@ function validateFlightSelection(flight) {
   return true;
 }
 
-// === Step 3: Billing ===
+// === set up sa payment ===
 document.getElementById('toBillingBtn').addEventListener('click', () => {
   showStep('billing-section');
 
@@ -141,7 +141,7 @@ function updateBilling() {
     `Total Fare (${classType.toUpperCase()}): ₱${computedPrice.toLocaleString()}`;
 }
 
-// === Step 4: Passenger Info ===
+// === ari na ibutang ang info sa mo sakay ===
 document.getElementById('toPassengerBtnBilling').addEventListener('click', () => {
   showStep('passenger-section');
 
@@ -186,13 +186,13 @@ document.getElementById('toSummaryBtn').addEventListener('click', () => {
   `;
 });
 
-// === Step 5: Book Now ===
+// === Sa booking na diri ===
 document.getElementById('bookNowBtn').addEventListener('click', () => {
   alert("✅ Booking successful! Thank you for choosing AirLines!");
   window.location.reload();
 });
 
-// === Go Back Buttons ===
+
 document.getElementById('backToBookingBtn').addEventListener('click', () => {
   showStep('booking-section');
 });
@@ -206,7 +206,7 @@ document.getElementById('backToPassengerBtn').addEventListener('click', () => {
   showStep('passenger-section');
 });
 
-// === Utility: Step Navigation ===
+
 function showStep(id) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
