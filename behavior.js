@@ -1,3 +1,13 @@
+
+// === PROMOS ===
+
+const promolist = {
+  promos :  [ { code: "FLYHIGH", discount: 0.10}, 
+          {code : "RACETOHEAVEN", discount: 0.20},
+          {code : "SKYHIGH", discount: 0.15}
+             ]
+};
+
 // === Sample flight data ===
 const flights = {
   oneway: [
@@ -6,12 +16,20 @@ const flights = {
     { flightNo: "DG234", from: "Manila", to: "Bohol", time: "1:00 PM", date: "2025-10-22", price: 2800, seats: 12, hours: 1.25, fareType: "Promo Fare" },
     { flightNo: "5B520", from: "Davao", to: "Cebu", time: "7:00 AM", date: "2025-10-20", price: 2500, seats: 20, hours: 1.5, fareType: "Promo Fare" },
     { flightNo: "PR423", from: "Manila", to: "Iloilo", time: "10:30 PM", date: "2025-10-21", price: 3200, seats: 15, hours: 2, fareType: "Regular" },
-    { flightNo: "DG253", from: "Iloilo", to: "Bohol", time: "3:00 PM", date: "2025-10-22", price: 2800, seats: 12, hours: 1.25, fareType: "Promo Fare" }
+    { flightNo: "DG253", from: "Iloilo", to: "Bohol", time: "3:00 PM", date: "2025-10-22", price: 2800, seats: 12, hours: 1.25, fareType: "Promo Fare" },
+    { flightNo: "NX101", from: "Manila", to: "Cagayan De Oro", time: "6:15 AM", date: "2025-10-20", price: 3000, seats: 18, hours: 2.0, fareType: "Regular" },
+    { flightNo: "AV202", from: "Manila", to: "Iloilo", time: "9:45 AM", date: "2025-10-23", price: 2700, seats: 10, hours: 1.75, fareType: "Promo Fare" },
+    { flightNo: "CB305", from: "Cebu", to: "Bacolod", time: "2:30 PM", date: "2025-10-24", price: 2100, seats: 14, hours: 1.25, fareType: "Regular" },
+    { flightNo: "CL410", from: "Clark", to: "Manila", time: "4:00 PM", date: "2025-10-20", price: 1200, seats: 25, hours: 0.75, fareType: "Promo Fare" },
+    { flightNo: "PH550", from: "Manila", to: "Boracay", time: "12:30 PM", date: "2025-10-22", price: 3500, seats: 8, hours: 1.5, fareType: "Regular" }
   ],
   roundtrip: [
     { flightNo: "5J560", from: "Manila", to: "Cebu", depart: "2025-10-20", return: "2025-10-25", price: 4500, seats: 20, hours: 1.5, fareType: "Promo Fare" },
     { flightNo: "PR312", from: "Manila", to: "Davao", depart: "2025-10-21", return: "2025-10-26", price: 5200, seats: 15, hours: 2, fareType: "Regular" },
-    { flightNo: "DG234", from: "Manila", to: "Bohol", depart: "2025-10-22", return: "2025-10-27", price: 4800, seats: 12, hours: 1.25, fareType: "Promo Fare" }
+    { flightNo: "DG234", from: "Manila", to: "Bohol", depart: "2025-10-22", return: "2025-10-27", price: 4800, seats: 12, hours: 1.25, fareType: "Promo Fare" },
+    { flightNo: "NX201", from: "Manila", to: "Cagayan De Oro", depart: "2025-10-20", return: "2025-10-24", price: 5800, seats: 16, hours: 2.0, fareType: "Regular" },
+    { flightNo: "AV402", from: "Manila", to: "Iloilo", depart: "2025-10-23", return: "2025-10-28", price: 5100, seats: 10, hours: 1.75, fareType: "Promo Fare" },
+    { flightNo: "CL510", from: "Clark", to: "Manila", depart: "2025-10-20", return: "2025-10-21", price: 2300, seats: 22, hours: 0.75, fareType: "Promo Fare" }
   ]
 };
 
@@ -149,12 +167,17 @@ document.getElementById('toPassengerBtnBilling').addEventListener('click', () =>
   const formsDiv = document.getElementById('passengerForms');
   formsDiv.innerHTML = '';
 
-  for (let i = 1; i <= num; i++) {
+  // === sa pag apply nis promocode
+  const allowPromo = selectedFlight && selectedFlight.fareType === 'Promo Fare';
+  const maxPromoFields = allowPromo ? Math.min(3, num) : 0;
+
+   for (let i = 1; i <= num; i++) {
     formsDiv.innerHTML += `
       <div class="form-group">
         <h4>Passenger ${i}</h4>
         <input type="text" class="passengerName" placeholder="Full Name" required>
         <input type="number" class="passengerAge" placeholder="Age" required>
+        ${i <= maxPromoFields ? `<input type="text" class="passengerPromo" placeholder="Promo code (optional)">` : ''}
       </div>
     `;
   }
@@ -172,19 +195,71 @@ document.getElementById('toSummaryBtn').addEventListener('click', () => {
   bookingInfo.passengersData = names.map((name, i) => ({ name, age: ages[i] }));
   showStep('summary-section');
 
-  const totalFare = bookingInfo.computedFare * bookingInfo.passengers;
+  const baseFare = bookingInfo.computedFare;
+  const numPassengers = parseInt(bookingInfo.passengers);
+  const promoLimit = 3; // == limit kung pila ang applicable sa promo
+  let promoAppliedCount = 0;
+
+  // gi scan niya kung valid promo then execute
+  const promoInputs = [...document.querySelectorAll('.passengerPromo')].map(e => e.value.trim());
+
+  // == validation sa flight kung promo fare then maapply ang discount
+  const passengersWithPricing = bookingInfo.passengersData.map((p, idx) => {
+    let fare = baseFare;
+    let discount = 0;
+    let promoCode = null;
+
+    if (selectedFlight && selectedFlight.fareType === 'Promo Fare' && idx < promoInputs.length) {
+      const code = promoInputs[idx];
+      if (code && promoAppliedCount < promoLimit) {
+        const matched = promolist.promos.find(x => x.code.toUpperCase() === code.toUpperCase());
+        if (matched) {
+          discount = Math.round(baseFare * matched.discount);
+          fare = baseFare - discount;
+          promoCode = matched.code;
+          promoAppliedCount++;
+        } else {
+          promoCode = `INVALID (${code})`;
+        }
+      }
+    }
+
+    return {
+      name: p.name,
+      age: p.age,
+      fare,
+      discount,
+      promoCode
+    };
+  });
+
+  const totalFare = passengersWithPricing.reduce((s, p) => s + p.fare, 0);
 
   const s = document.getElementById('summaryDetails');
   s.innerHTML = `
     <h3>Flight Info</h3>
     <p>${selectedFlight.flightNo} - ${selectedFlight.from} → ${selectedFlight.to}</p>
     <p>Class Type: ${bookingInfo.classType.toUpperCase()}</p>
-    <p>Price per Passenger: ₱${bookingInfo.computedFare}</p>
+    <p>Price per Passenger (base): ₱${baseFare.toLocaleString()}</p>
+    <h3>Passengers & Pricing</h3>
+    <ul>
+      ${passengersWithPricing.map((p, i) => `
+        <li>
+          ${p.name}, ${p.age} yrs —
+          Fare: ₱${p.fare.toLocaleString()}
+          ${p.discount > 0 ? `(Discount: -₱${p.discount.toLocaleString()} via ${p.promoCode})` : p.promoCode ? `(${p.promoCode})` : ''}
+        </li>
+      `).join('')}
+    </ul>
     <p><strong>Total Fare: ₱${totalFare.toLocaleString()}</strong></p>
-    <h3>Passengers</h3>
-    <ul>${bookingInfo.passengersData.map(p => `<li>${p.name}, ${p.age} yrs old</li>`).join('')}</ul>
   `;
 });
+
+function findPromo(code) {
+  if (!code) return null;
+  return promolist.promos.find(p => p.code.toUpperCase() === code.toUpperCase()) || null;
+}
+
 
 // === Sa booking na diri ===
 document.getElementById('bookNowBtn').addEventListener('click', () => {
